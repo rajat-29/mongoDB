@@ -1,0 +1,24 @@
+<html>
+<body>
+<button type="button" onclick="loadDoc()">Request data</button>
+
+<p>Click the button several times to see if the time changes, or if the file is cached.</p>
+
+<p id="demo"></p>
+
+<script>
+function loadDoc() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange=function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("demo").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("POST", "/test");
+  xhttp.setRequestHeader("Content-Type", "application/json");
+  xhttp.send(JSON.stringify({'name':'RAJAT' , 'age':19}));
+}
+</script>
+
+</body>
+</html>
