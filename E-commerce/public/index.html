@@ -1,81 +1,35 @@
+<!DOCTYPE html>
 <html>
-<body>
-<button type="button" onclick="loadDoc()">Request data</button>
+  <head>
+      <title>Manage products</title>
+  </head>
+  <body>
 
-<input type="textbox" id="add" name="">
-<button type="button" onclick="addData()">ADD Data</button>
+    <center>
+        <button type="button" id="addbutton">Add Product</button>
+        <div id="showform">
 
-<br>
-<input type="textbox" id="newname" name="" placeholder="ENTER NEW NAME">
-<input type="textbox" id="oldname" name="" placeholder="ENTER NAME TO CHANGE">
-<button type="button" onclick="updateData()">Update Data</button>
+        </div>
+        <br><br>
+        <table>
 
-<br>
-<input type="textbox" id="deletedata" name="" placeholder="ENTER NAME TO DELETE">
-<button type="button" onclick="deleteData()">DELETE Data</button>
+            <thead>
 
-<p>Click the button several times to see if the time changes, or if the file is cached.</p>
+              <td>Name</td>
+              <td>Description</td>
+              <td>Price</td>
+              <td>Edit</td>
+              <td>Delete</td>
 
-<p id="demo"></p>
+            </thead>
 
-<script>
-  var add = document.getElementById('add')
+            <tbody id="list">
 
+            </tbody>
 
-function loadDoc() {
-  //Fetch product list
-  var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "/products");
-   xhttp.send();
-  xhttp.onreadystatechange=function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("demo").innerHTML = this.responseText;
-    }
-  };
-   //End fetch product list
-}
+        </table>
+    </center>
+<script src="script.js"></script>
+  </body>
 
-function addData() {
-   //Add Product
-   var n = document.getElementById('add')
-     var xhttp = new XMLHttpRequest();
-     xhttp.open("POST", "/addProduct");
-  xhttp.setRequestHeader("Content-Type", "application/json");
-   xhttp.send(JSON.stringify({'name':n.value}));
-   loadDoc();
-   n.value = ""
-    // End add product
-}
-  
- 
-function updateData() { 
-  //Update a product
-  var a = document.getElementById('newname');
-  var b = document.getElementById('oldname');
-
-   var xhttp = new XMLHttpRequest();
-   xhttp.open("PUT", "/updateProduct");
-   xhttp.setRequestHeader("Content-Type", "application/json");
-   xhttp.send(JSON.stringify({'nameNew':a.value , 'name' : b.value}));
-  loadDoc();
-  a.value = "";
-  b.value = "";
-  //End Update product
-}
-
-function deleteData() {
-  //Delete a Product
-  var a = document.getElementById('deletedata');
-
-  var xhttp = new XMLHttpRequest();
-  xhttp.open("POST", "/deleteProduct");
-  xhttp.setRequestHeader("Content-Type", "application/json");
-  xhttp.send(JSON.stringify({'name' : a.value}));
-  loadDoc();
-  a.value = "";
-}
-
-</script>
-
-</body>
 </html>

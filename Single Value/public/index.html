@@ -1,0 +1,94 @@
+<html>
+<body>
+<button type="button" onclick="loadDoc()">Request data</button>
+
+<input type="textbox" id="add" name="" placeholder="ENTER NAME">
+<input type="textbox" id="price" name="" placeholder="ENTER PRICE">
+<button type="button" onclick="addData()">ADD Data</button>
+
+<br>
+<input type="textbox" id="newname" name="" placeholder="ENTER NEW NAME">
+<input type="textbox" id="oldname" name="" placeholder="ENTER NAME TO CHANGE">
+<button type="button" onclick="updateData()">Update Data</button>
+
+<br>
+<input type="textbox" id="deletedata" name="" placeholder="ENTER NAME TO DELETE">
+<button type="button" onclick="deleteData()">DELETE Data</button>
+
+<p>Click the button several times to see if the time changes, or if the file is cached.</p>
+
+<p id="demo"></p><br>
+<p id="pr"></p>
+
+<script>
+  var add = document.getElementById('add');
+  var products = [];
+
+
+function loadDoc() {
+  //Fetch product list
+  document.getElementById("demo").innerHTML = "";
+  var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "/products");
+   xhttp.send();
+  xhttp.onreadystatechange=function() {
+    if (this.readyState == 4 && this.status == 200) {
+    	 products = JSON.parse(this.responseText);
+    	 document.getElementById("demo").innerHTML = this.responseText
+    	console.log(JSON.parse(this.responseText));
+    	//for(var i = 0; i<products.length;i++) {
+     	//	  document.getElementById("demo").innerHTML =document.getElementById("demo").innerHTML + " " + products[i].productName;
+     		  //document.getElementById("pr").innerHTML =document.getElementById("pr").innerHTML + " " + products[i].productPrice;
+  		//}
+    }
+  };
+   //End fetch product list
+}
+
+function addData() {
+   //Add Product
+
+   var n = document.getElementById('add');
+   var m = document.getElementById('price');
+     console.log(m.value);
+     var xhttp = new XMLHttpRequest();
+     xhttp.open("POST", "/addProduct");
+  xhttp.setRequestHeader("Content-Type", "application/json");
+   xhttp.send(JSON.stringify({'name':n.value,'price':m.value}));
+   loadDoc();
+   n.value = ""
+    // End add product
+}
+  
+ 
+function updateData() { 
+  //Update a product
+  var a = document.getElementById('newname');
+  var b = document.getElementById('oldname');
+
+   var xhttp = new XMLHttpRequest();
+   xhttp.open("PUT", "/updateProduct");
+   xhttp.setRequestHeader("Content-Type", "application/json");
+   xhttp.send(JSON.stringify({'nameNew':a.value , 'name' : b.value}));
+  loadDoc();
+  a.value = "";
+  b.value = "";
+  //End Update product
+}
+
+function deleteData() {
+  //Delete a Product
+  var a = document.getElementById('deletedata');
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.open("POST", "/deleteProduct");
+  xhttp.setRequestHeader("Content-Type", "application/json");
+  xhttp.send(JSON.stringify({'name' : a.value}));
+  loadDoc();
+  a.value = "";
+}
+
+</script>
+
+</body>
+</html>

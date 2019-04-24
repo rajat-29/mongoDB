@@ -1,114 +1,100 @@
-var express = require('express')
-var path = require('path') 
-var app = express()
+  var express = require('express')
+  var path = require('path')
+  var app = express()
 
+  app.use(express.static(path.join(__dirname,'public')))
 
-//Acces static files
-app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.urlencoded({extended: true}))
+  app.use(express.json())
 
-//Bodyparser
-app.use(express.urlencoded({extended: true})); 
-app.use(express.json()); 
+  var mongoose = require('mongoose');
+  var mongoDB = 'mongodb://localhost/meraDB';
 
-//Connect with db
-var mongoose = require('mongoose');
-var mongoDB = 'mongodb://localhost/myDB';
+  mongoose.connect(mongoDB);
 
-mongoose.set('useFindAndModify', false);
-
-mongoose.connect(mongoDB,{ useNewUrlParser: true});
-
-
-mongoose.connection.on('error', (err) => {
+  mongoose.connection.on('error',(err) => {
     console.log('DB connection Error');
-});
+  })
 
-mongoose.connection.on('connected', (err) => {
+  mongoose.connection.on('connected',(err) => {
     console.log('DB connected');
-});
-
-var productSchema = new mongoose.Schema({
-    productName: String
   })
 
-var product =  mongoose.model('Product', productSchema);
-
-// Add in db
-app.post('/addProduct',function (req, res) {
-  console.log(req.body);
-  let newProduct = new product({
-    productName: req.body.name 
-  })
-  newProduct.save()
-   .then(data => {
-     console.log(data)
-     res.send(data)
-   })
-   .catch(err => {
-     console.error(err)
-     res.send(error)
-   })
-  
-})
-
-//Get from DB
-  app.get('/products',function(req,res){
-      product.find({
-           // search query
-           //productName: 'mlbTvrndc'  
-      },{'productName': 1, _id: 0})
-      .then(data => {
-          console.log(data)
-          res.send(data)
-        })
-        .catch(err => {
-          console.error(err)
-          res.send(error)
-        })
+  var productSchema = new mongoose.Schema({
+    Name: String,
+    Desc: String,
+    Price: Number,
+    Quantity: Number,
   })
 
+  var product = mongoose.model('Product', productSchema);
 
-//
-app.put('/updateProduct',function(req,res){
-    console.log(req.body);
-    product.findOneAndUpdate(
-    {
-        productName: req.body.name  // search query
-    }, 
-    {
-      productName: req.body.nameNew   // field:values to update
-    },
-    {
-      new: true,                       // return updated doc
-      runValidators: true              // validate before update
-    })
-    .then(data => {
-        console.log(data)
-        res.send(data)
-      })
-      .catch(err => {
-        console.error(err)
-        res.send(error)
-      })
-})
-
-app.post('/deleteProduct',function(req,res){
-    console.log(req.body);
-    product.findOneAndDelete(
+  app.post('/:pro',function (req, res)
+  {
+      console.log(req.body);
+      product.create(req.body,function(error,result)
       {
-        productName: req.body.name
+        if(error)
+        throw error;
+        else
+        {
+          console.log(result);
+        }
       })
-    .then(data => {
-        console.log(data)
-        res.send(data)
-      })
-      .catch(err => {
-        console.error(err)
-        res.send(error)
-      })
-})
 
-app.get('/test',function(req,res){
-    res.send('hello');
-})
-app.listen(8000)
+       res.send("data has been saved");
+  })
+
+  //Get from DB
+  app.get('/:pro',function(req,res)
+  {
+      var data = product.find({}).exec(function(error,result)
+      {
+        if(error)
+        throw error;
+        else
+        res.send(JSON.stringify(result))
+      });
+  })
+
+  app.put('/:pro',function(req,res)
+  {
+    /*
+        console.log(req.body)
+        console.log(req.params.pro)*/
+        var id =  req.params.pro.toString()
+        console.log(id)
+        product.updateOne( { "_id" : id, $set : req.body.text } , function(err,result)
+        {
+          if(err)
+          throw err
+          else
+          {
+            res.send("DATA UPDATED SUCCESFULLY")
+          }
+        })
+
+  })
+
+  app.delete('/:pro',function(req,res)
+  {
+      var id = req.params.pro.toString();
+      console.log(id);
+      product.deleteOne({ "_id": id },function(err,result)
+      {
+          if(err)
+          throw error
+          else
+          {
+            console.log(result);
+              res.send("data deleted SUCCESFULLY")
+          }
+      });
+  })
+
+//  app.get('/hello',function(req,res){
+//    res.send('hello');
+//})
+
+  console.log("Running on port 3000");
+  app.listen(8000)
